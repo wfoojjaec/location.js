@@ -63,11 +63,13 @@
             fetch( href + ( pushState ? '' : ( href.indexOf( '?' ) === -1 ? '?' : '&' ) + 'rel=tab' ), location.options.fetch ).then( function( response ) {
                 return response.ok ? response.text() : Promise.reject( new Error( response.statusText ) );
             } ).then( function( response ) {
+                if( pushState )
+                    history.pushState( { path : href }, document.title, href );
+                location.IntersectionObserver.disconnect();
+                location.MutationObserver.disconnect();
                 document.open();
                 document.write( response );
                 document.close();
-                if( pushState )
-                    history.pushState( { path : href }, document.title, href );
                 if( location.options.refresh ) {
                     var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
                     if( meta ) {
@@ -76,8 +78,6 @@
                         }, parseInt( meta.content ) * 1000 );
                     }
                 }
-                location.IntersectionObserver.disconnect();
-                location.MutationObserver.disconnect();
                 if( typeof location.options.onAfterLoad === 'function' )
                     location.options.onAfterLoad( event, href, pushState );
                 location.options.referer = href;
