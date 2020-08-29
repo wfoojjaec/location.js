@@ -70,14 +70,6 @@
                 document.open();
                 document.write( response );
                 document.close();
-                if( location.options.refresh ) {
-                    var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
-                    if( meta ) {
-                        location.timeout = setTimeout( function() {
-                            location.load( event, href, true );
-                        }, parseInt( meta.content ) * 1000 );
-                    }
-                }
                 if( typeof location.options.onAfterLoad === 'function' )
                     location.options.onAfterLoad( event, href, pushState );
                 location.options.referer = href;
@@ -93,26 +85,6 @@
                     event.preventDefault();
                     location.load( event, a.href, true );
                 }
-            }
-        } );
-        document.addEventListener( 'submit', function( event ) {
-            if( location.options.submit ) {
-                var form = event.target.closest( 'form' );
-                if( form.matches( 'form[data-location]' ) ) {
-                    if( form.method === 'get' && form.enctype === 'application/x-www-form-urlencoded' ) {
-                        event.preventDefault();
-                        location.load( event, form.action + ( form.action.indexOf( '?' ) === -1 ? '?' : '&' ) + new URLSearchParams( new FormData( form ) ).toString(), true );
-                    }
-                }
-            }
-        } );
-        window.addEventListener( 'popstate', function( event ) {
-            var href = location.origin + location.pathname + location.search;
-            if( location.options.referer !== href ) {
-                if( location.options.popstate )
-                    location.load( event, href, false );
-                else
-                    location.assign( href );
             }
         } );
         location.IntersectionObserver = typeof location.IntersectionObserver === 'object' ? location.IntersectionObserver : new IntersectionObserver( function( entries, observer ) {
@@ -178,6 +150,32 @@
                 } );
         } );
         location.MutationObserver.observe( document, location.options.MutationObserver );
+        window.addEventListener( 'popstate', function( event ) {
+            var href = location.origin + location.pathname + location.search;
+            if( location.options.referer !== href ) {
+                if( location.options.popstate )
+                    location.load( event, href, false );
+                else
+                    location.assign( href );
+            }
+        } );
+        var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
+        if( meta )
+            location.timeout = setTimeout( function() {
+                if( location.options.refresh )
+                    location.load( event, href, true );
+            }, parseInt( meta.content ) * 1000 );
+        document.addEventListener( 'submit', function( event ) {
+            if( location.options.submit ) {
+                var form = event.target.closest( 'form' );
+                if( form.matches( 'form[data-location]' ) ) {
+                    if( form.method === 'get' && form.enctype === 'application/x-www-form-urlencoded' ) {
+                        event.preventDefault();
+                        location.load( event, form.action + ( form.action.indexOf( '?' ) === -1 ? '?' : '&' ) + new URLSearchParams( new FormData( form ) ).toString(), true );
+                    }
+                }
+            }
+        } );
     }
     catch( exception ) {
        console.error( exception );
