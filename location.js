@@ -7,7 +7,6 @@
             intersection : true,
             mutation : true,
             popstate : true,
-            refresh : true,
             submit : true,
             onBeforeLoad : null,
             onAfterLoad : null,
@@ -57,7 +56,6 @@
                 location.AbortController.abort();
             location.AbortController = new AbortController();
             location.options.fetch.signal = location.AbortController.signal;
-            clearTimeout( location.timeout );
             if( typeof location.options.onBeforeLoad === 'function' )
                 location.options.onBeforeLoad( event, href, pushState );
             fetch( href + ( pushState ? '' : ( href.indexOf( '?' ) === -1 ? '?' : '&' ) + 'rel=tab' ), location.options.fetch ).then( function( response ) {
@@ -159,15 +157,6 @@
                     location.assign( href );
             }
         } );
-        if( location.options.refresh ) {
-            var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
-            if( meta ) {
-                location.timeout = setTimeout( function() {
-                    location.load( event, location.options.referer, true );
-                }, parseInt( meta.content ) * 1000 );
-                meta.remove();
-            }
-        }
         document.addEventListener( 'submit', function( event ) {
             if( location.options.submit ) {
                 var form = event.target.closest( 'form' );
