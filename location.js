@@ -159,12 +159,15 @@
                     location.assign( href );
             }
         } );
-        var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
-        if( meta )
-            location.timeout = setTimeout( function() {
-                if( location.options.refresh )
+        if( location.options.refresh ) {
+            var meta = document.querySelector( 'meta[http-equiv="refresh"]' );
+            if( meta ) {
+                location.timeout = setTimeout( function() {
                     location.load( event, href, true );
-            }, parseInt( meta.content ) * 1000 );
+                }, parseInt( meta.content ) * 1000 );
+                meta.remove();
+            }
+        }
         document.addEventListener( 'submit', function( event ) {
             if( location.options.submit ) {
                 var form = event.target.closest( 'form' );
