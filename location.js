@@ -79,7 +79,7 @@
         document.addEventListener( 'click', function( event ) {
             if( location.options.click && event.button === 0 ) {
                 var a = event.target.closest( 'a' );
-                if( a && a.matches( 'a[data-location]' ) ) {
+                if( a instanceof HTMLAnchorElement && a.hasAttribute( 'data-location' ) ) {
                     event.preventDefault();
                     location.load( event, a.href, true );
                 }
@@ -136,8 +136,12 @@
                     switch( mutation.type ) {
                         case 'childList' :
                             mutation.addedNodes.forEach( function( currentValue, currentIndex, listObj ) {
-                                if( currentValue.dataset && currentValue.dataset.location )
+                                if( currentValue.dataset instanceof DOMStringMap && currentValue.dataset.location )
                                     location.IntersectionObserver.observe( currentValue );
+                                else if( typeof currentValue.querySelectorAll === 'function' )
+                                        currentValue.querySelectorAll( '*[data-location]:not([data-location=""])' ).forEach( function( currentValue, currentIndex, listObj ) {
+                                            location.IntersectionObserver.observe( currentValue );
+                                        } );
                             } );
                         break;
                         case 'attributes' :
@@ -160,11 +164,9 @@
         document.addEventListener( 'submit', function( event ) {
             if( location.options.submit ) {
                 var form = event.target.closest( 'form' );
-                if( form.matches( 'form[data-location]' ) ) {
-                    if( form.method === 'get' && form.enctype === 'application/x-www-form-urlencoded' ) {
-                        event.preventDefault();
-                        location.load( event, form.action + ( form.action.indexOf( '?' ) === -1 ? '?' : '&' ) + new URLSearchParams( new FormData( form ) ).toString(), true );
-                    }
+                if( form instanceof HTMLFormElement && form.hasAttribute( 'data-location' ) && form.method === 'get' && form.enctype === 'application/x-www-form-urlencoded' ) {
+                    event.preventDefault();
+                    location.load( event, form.action + ( form.action.indexOf( '?' ) === -1 ? '?' : '&' ) + new URLSearchParams( new FormData( form ) ).toString(), true );
                 }
             }
         } );
