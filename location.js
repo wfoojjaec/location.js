@@ -104,7 +104,7 @@
                         fetch( entry.target.dataset.location, location.options.fetch ).then( function( response ) {
                             return response.ok ? response.text() : Promise.reject( new Error( response.statusText ) );
                         } ).then( function( response ) {
-                            entry.target.innerHTML = response;
+                            entry.target.outerHTML = response;
                             if( typeof location.options.onAfterLoad === 'function' )
                                 location.options.onAfterLoad( entry, entry.target.dataset.location, true );
                         } ).catch( function( error ) {
